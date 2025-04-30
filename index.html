@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Truck Driver Expense Tracker</title>
+  <!-- Import Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Import Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --red-color: #ef4444;
+      --red-hover: #dc2626;
+      --green-color: #10b981;
+      --green-hover: #059669;
+      --text-color: #374151;
+      --bg-color: #f9fafb;
+      --card-bg: #ffffff;
+      --border-color: #e5e7eb;
+      --input-bg: #f3f4f6;
+    }
+
+    [data-theme="dark"] {
+      --primary-color: #3b82f6;
+      --primary-hover: #60a5fa;
+      --red-color: #ef4444;
+      --red-hover: #f87171;
+      --green-color: #10b981;
+      --green-hover: #34d399;
+      --text-color: #e5e7eb;
+      --bg-color: #111827;
+      --card-bg: #1f2937;
+      --border-color: #374151;
+      --input-bg: #374151;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .logo i {
+      margin-right: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+
+    .tab-button {
+      padding: 0.75rem 1rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-color);
+      font-weight: 500;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .tab-button.active {
+      color: var(--primary-color);
+    }
+
+    .tab-button.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--primary-color);
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .card-header i {
+      margin-right: 0.5rem;
+    }
+
+    .card-body {
+      padding: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.25rem;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .button i {
+      margin-right: 0.5rem;
+    }
+
+    .button-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .button-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .button-red {
+      background-color: var(--red-color);
+      color: white;
+    }
+
+    .button-red:hover {
+      background-color: var(--red-hover);
+    }
+
+    .button-green {
+      background-color: var(--green-color);
+      color: white;
+    }
+
+    .button-green:hover {
+      background-color: var(--green-hover);
+    }
+
+    .button-outline {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+    }
+
+    .button-outline:hover {
+      background-color: var(--input-bg);
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(1, 1fr);
+    }
+
+    @media (min-width: 768px) {
+      .grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(1, 1fr);
+    }
+
+    @media (min-width: 768px) {
+      .grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .gap-2 {
+      gap: 0.5rem;
+    }
+
+    .mb-1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .mb-2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+
+    .mt-2 {
+      margin-top: 0.5rem;
+    }
+
+    .mt-4 {
+      margin-top: 1rem;
+    }
+
+    .p-2 {
+      padding: 0.5rem;
+    }
+
+    .p-4 {
+      padding: 1rem;
+    }
+
+    .rounded {
+      border-radius: 0.25rem;
+    }
+
+    .bg-blue-50 {
+      background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    .bg-red-50 {
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    .bg-green-50 {
+      background-color: rgba(16, 185, 129, 0.1);
+    }
+
+    .bg-yellow-50 {
+      background-color: rgba(245, 158, 11, 0.1);
+    }
+
+    .bg-purple-50 {
+      background-color: rgba(139, 92, 246, 0.1);
+    }
+
+    .text-blue {
+      color: var(--primary-color);
+    }
+
+    .text-red {
+      color: var(--red-color);
+    }
+
+    .text-green {
+      color: var(--green-color);
+    }
+
+    .text-yellow {
+      color: #f59e0b;
+    }
+
+    .text-purple {
+      color: #8b5cf6;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    .text-lg {
+      font-size: 1.125rem;
+    }
+
+    .text-sm {
+      font-size: 0.875rem;
+    }
+
+    .text-xs {
+      font-size: 0.75rem;
+    }
+
+    .border {
+      border: 1px solid var(--border-color);
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+    }
+
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-color);
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-icon:hover {
+      background-color: var(--input-bg);
+    }
+
+    .income-entry, .expense-entry {
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .income-entry {
+      background-color: rgba(16, 185, 129, 0.1);
+    }
+
+    .expense-entry {
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    .summary-box {
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .summary-income {
+      background-color: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .summary-expense {
+      background-color: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .summary-profit {
+      background-color: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background-color: var(--card-bg);
+      border-radius: 0.5rem;
+      max-width: 90%;
+      width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-body {
+      padding: 1rem;
+    }
+
+    .modal-footer {
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: var(--text-color);
+    }
+
+    .floating-action-button {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 3.5rem;
+      height: 3.5rem;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      transition: background-color 0.2s;
+    }
+
+    .floating-action-button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .fab-menu {
+      position: fixed;
+      bottom: 6rem;
+      right: 2rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.75rem;
+      z-index: 10;
+    }
+
+    .fab-item {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      color: white;
+      position: relative;
+    }
+
+    .fab-item::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      right: 100%;
+      margin-right: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      display: none;
+    }
+
+    .fab-item:hover::before {
+      display: block;
+    }
+
+    .fab-calculate {
+      background-color: #8b5cf6;
+    }
+
+    .fab-save {
+      background-color: #10b981;
+    }
+
+    .fab-export {
+      background-color: #f59e0b;
+    }
+
+    .fab-reset {
+      background-color: #ef4444;
+    }
+
+    .expense-input {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      border-radius: 0.25rem;
+      overflow: hidden;
+    }
+
+    .expense-input input {
+      border: none;
+      border-radius: 0;
+    }
+
+    .expense-input-symbol {
+      padding: 0.5rem;
+      background-color: var(--input-bg);
+      color: var(--text-color);
+      border-left: 1px solid var(--border-color);
+    }
+
+    .history-item {
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .history-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Dark mode toggle */
+    .theme-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 30px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(30px);
+    }
+
+    /* Language selector */
+    .language-selector {
+      display: flex;
+      align-items: center;
+      background-color: var(--input-bg);
+      border-radius: 0.25rem;
+      padding: 0.25rem;
+    }
+
+    .language-option {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .language-option.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <i class="material-icons">local_shipping</i>
+      <span id="logo-text">Truck Driver Expense Tracker</span>
+    </div>
+    <div class="nav-controls">
+      <div class="language-selector">
+        <div class="language-option active" data-lang="en">EN</div>
+        <div class="language-option" data-lang="ro">RO</div>
+      </div>
+      <label class="theme-switch">
+        <input type="checkbox" id="theme-toggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="tab-nav">
+      <button class="tab-button active" data-tab="trip-entry">
+        <i class="material-icons">drive_file_rename_outline</i>
+        <span id="trip-entry-tab">Trip Entry</span>
+      </button>
+      <button class="tab-button" data-tab="truck-info">
+        <i class="material-icons">local_shipping</i>
+        <span id="truck-info-tab">Truck Info</span>
+      </button>
+      <button class="tab-button" data-tab="trailer-info">
+        <i class="material-icons">inventory_2</i>
+        <span id="trailer-info-tab">Trailer Info</span>
+      </button>
+      <button class="tab-button" data-tab="expenses">
+        <i class="material-icons">payments</i>
+        <span id="expenses-tab">Expenses</span>
+      </button>
+      <button class="tab-button" data-tab="income">
+        <i class="material-icons">account_balance</i>
+        <span id="income-tab">Income</span>
+      </button>
+      <button class="tab-button" data-tab="summary">
+        <i class="material-icons">pie_chart</i>
+        <span id="summary-tab">Summary</span>
+      </button>
+      <button class="tab-button" data-tab="history">
+        <i class="material-icons">history</i>
+        <span id="history-tab">History</span>
+      </button>
+    </div>
+
+    <!-- Trip Entry Tab -->
+    <div class="tab-content active" id="trip-entry">
+      <div class="card">
+        <div class="card-header">
+          <i class="material-icons">drive_file_rename_outline</i>
+          <span id="trip-entry-title">Trip Entry</span>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="trip-name" id="trip-name-label">Trip Name</label>
+            <input type="text" id="trip-name" placeholder="Enter trip name">
+          </div>
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label for="start-date" id="start-date-label">Start Date</label>
+              <input type="date" id="start-date">
+            </div>
+            <div class="form-group">
+              <label for="end-date" id="end-date-label">End Date</label>
+              <input type="date" id="end-date">
+            </div>
+          </div>
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label for="origin" id="origin-label">Origin</label>
+              <input type="text" id="origin" placeholder="Enter origin city/location">
+            </div>
+            <div class="form-group">
+              <label for="destination" id="destination-label">Destination</label>
+              <input type="text" id="destination" placeholder="Enter destination city/location">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="distance" id="distance-label">Distance (km)</label>
+            <input type="number" id="distance" placeholder="Enter distance in kilometers">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Truck Info Tab -->
+    <div class="tab-content" id="truck-info">
+      <div class="card">
+        <div class="card-header">
+          <i class="material-icons">local_shipping</i>
+          <span id="truck-info-title">Truck Information</span>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label for="truck-make" id="truck-make-label">Make</label>
+              <input type="text" id="truck-make" placeholder="Enter truck make">
+            </div>
+            <div class="form-group">
+              <label for="truck-model" id="truck-model-label">Model</label>
+              <input type="text" id="truck-model" placeholder="Enter truck model">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="truck-license" id="truck-license-label">License Plate</label>
+            <input type="text" id="truck-license" placeholder="Enter license plate number">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trailer Info Tab -->
+    <div class="tab-content" id="trailer-info">
+      <div class="card">
+        <div class="card-header">
+          <i class="material-icons">inventory_2</i>
+          <span id="trailer-info-title">Trailer Information</span>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label for="trailer-make" id="trailer-make-label">Make</label>
+              <input type="text" id="trailer-make" placeholder="Enter trailer make">
+            </div>
+            <div class="form-group">
+              <label for="trailer-model" id="trailer-model-label">Model</label>
+              <input type="text" id="trailer-model" placeholder="Enter trailer model">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="trailer-license" id="trailer-license-label">License Plate</label>
+            <input type="text" id="trailer-license" placeholder="Enter license plate number">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expenses Tab -->
+    <div class="tab-content" id="expenses">
+      <div class="card">
+        <div class="card-header">
+          <i class="material-icons">payments</i>
+          <span id="expenses-title">Expenses</span>
+        </div>
+        <div class="card-body">
+          <div class="expense-entry bg-red-50">
+            <h3 class="mb-2 text-red"><i class="material-icons">person</i> <span id="driver-expenses-label">Driver Expenses</span></h3>
+            <div class="expense-input">
+              <input type="number" id="driver-expenses" placeholder="0.00">
+              <div class="expense-input-symbol">€</div>
+            </div>
+          </div>
+          
+          <div class="expense-entry bg-red-50">
+            <h3 class="mb-2 text-red"><i class="material-icons">receipt</i> <span id="tickets-expenses-label">Tickets</span></h3>
+            <div class="expense-input">
+              <input type="number" id="tickets-expenses" placeholder="0.00">
+              <div class="expense-input-symbol">€</div>
+            </div>
+          </div>
+          
+          <div class="expense-entry bg-red-50">
+            <h3 class="mb-2 text-red"><i class="material-icons">toll</i> <span id="tolls-expenses-label">Tolls</span></h3>
+            <div class="expense-input">
+              <input type="number" id="tolls-expenses" placeholder="0.00">
+              <div class="expense-input-symbol">€</div>
+            </div>
+          </div>
+          
+          <div class="expense-entry bg-red-50">
+            <h3 class="mb-2 text-red"><i class="material-icons">directions_boat</i> <span id="ferry-expenses-label">Ferry</span></h3>
+            <div class="expense-input">
+              <input type="number" id="ferry-expenses" placeholder="0.00">
+              <div class="expense-input-symbol">€</div>
+            </div>
+          </div>
+          
+          <div class="expense-entry bg-red-50">
+            <h3 class="mb-2 text-red"><i class="material-icons">build</i> <span id="maintenance-expenses-label">Maintenance</span></h3>
+            <div class="expense-input">
+              <input type="number" id="maintenance-expenses" placeholder="0.00">
+              <div class="expense-input-symbol">€</div>
+            </div>
+          </div>
+          
+          <div class="expense-entry bg-red-50">
+            <h3 class="mb-2 text-red"><i class="material-icons">local_gas_station</i> <span id="fuel-expenses-label">Fuel</span></h3>
+            <div class="expense-input">
+              <input type="number" id="fuel-expenses" placeholder="0.00">
+              <div class="expense-input-symbol">€</div>
+            </div>
+          </div>
+          
+          <div class="expense-entry bg-red-50">
+            <h3 class="mb-2 text-red"><i class="material-icons">more_horiz</i> <span id="other-expenses-label">Other</span></h3>
+            <div class="expense-input">
+              <input type="number" id="other-expenses" placeholder="0.00">
+              <div class="expense-input-symbol">€</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Income Tab -->
+    <div class="tab-content" id="income">
+      <div class="card">
+        <div class="card-header">
+          <i class="material-icons">account_balance</i>
+          <span id="income-title">Income</span>
+        </div>
+        <div class="card-body">
+          <div id="income-items-container">
+            <!-- Income items will be added here -->
+          </div>
+          <button class="button button-outline mt-4" id="add-income-btn">
+            <i class="material-icons">add_circle</i>
+            <span id="add-income-text">Add Income Item</span>
+          </button>
+          <div class="summary-box summary-income mt-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-green font-bold">
+                <i class="material-icons">calculate</i>
+                <span id="total-income-label">Total Income</span>
+              </h3>
+              <span class="text-green font-bold text-lg" id="total-income">€0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Tab -->
+    <div class="tab-content" id="summary">
+      <div class="card">
+        <div class="card-header">
+          <i class="material-icons">pie_chart</i>
+          <span id="summary-title">Trip Summary</span>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2">
+            <div>
+              <div class="summary-box bg-blue-50 mb-4">
+                <h3 class="text-blue mb-2" id="trip-overview-title">Trip Overview</h3>
+                <div class="flex justify-between mb-1">
+                  <span class="text-sm text-blue" id="trip-duration-label">Trip Duration</span>
+                  <span id="trip-duration-value">0 days</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-blue" id="total-distance-label">Total Distance</span>
+                  <span id="total-distance-value">0 km</span>
+                </div>
+              </div>
+
+              <div class="summary-box summary-income mb-4">
+                <div class="flex justify-between items-center mb-1">
+                  <h3 class="text-green" id="summary-income-label">Total Income</h3>
+                  <span class="text-green font-bold" id="summary-income-value">€0.00</span>
+                </div>
+                <div class="text-xs" id="income-breakdown">
+                  <!-- Income breakdown will appear here -->
+                </div>
+              </div>
+
+              <div class="summary-box summary-expense mb-4">
+                <div class="flex justify-between items-center mb-1">
+                  <h3 class="text-red" id="summary-expenses-label">Total Expenses</h3>
+                  <span class="text-red font-bold" id="summary-expenses-value">€0.00</span>
+                </div>
+                <div class="text-xs" id="expenses-breakdown">
+                  <!-- Expenses breakdown will appear here -->
+                </div>
+              </div>
+
+              <div class="summary-box summary-profit">
+                <div class="flex justify-between items-center">
+                  <h3 class="font-bold" id="profit-result-label">Profit</h3>
+                  <span class="font-bold text-lg" id="profit-value">€0.00</span>
+                </div>
+              </div>
+
+              <div class="flex gap-2 mt-4">
+                <button class="button button-primary" id="calculate-btn">
+                  <i class="material-icons">calculate</i>
+                  <span id="calculate-btn-text">Calculate</span>
+                </button>
+                <button class="button button-green" id="save-trip-btn">
+                  <i class="material-icons">save</i>
+                  <span id="save-btn-text">Save Trip</span>
+                </button>
+                <button class="button button-red" id="reset-btn">
+                  <i class="material-icons">restart_alt</i>
+                  <span id="reset-btn-text">Reset</span>
+                </button>
+              </div>
+
+              <div class="flex gap-2 mt-2">
+                <button class="button button-outline" id="export-pdf-btn">
+                  <i class="material-icons">picture_as_pdf</i>
+                  <span id="export-pdf-text">Export PDF</span>
+                </button>
+                <button class="button button-outline" id="export-csv-btn">
+                  <i class="material-icons">table_view</i>
+                  <span id="export-csv-text">Export CSV</span>
+                </button>
+                <button class="button button-outline" id="export-json-btn">
+                  <i class="material-icons">code</i>
+                  <span id="export-json-text">Export JSON</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="chart-container">
+                <canvas id="expenses-chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Tab -->
+    <div class="tab-content" id="history">
+      <div class="card">
+        <div class="card-header">
+          <i class="material-icons">history</i>
+          <span id="history-title">Trip History</span>
+        </div>
+        <div class="card-body">
+          <div id="history-list">
+            <!-- Trip history items will be added here -->
+          </div>
+          <div id="history-empty" class="p-4 text-center">
+            <i class="material-icons" style="font-size: 3rem; opacity: 0.3;">history</i>
+            <p id="no-trips-text">No saved trips found. Complete and save a trip to see it here.</p>
+          </div>
+          <div class="flex justify-between mt-4">
+            <button class="button button-outline" id="clear-history-btn">
+              <i class="material-icons">delete_sweep</i>
+              <span id="clear-history-text">Clear All History</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <div class="floating-action-button" id="fab-main">
+    <i class="material-icons">add</i>
+  </div>
+  <div class="fab-menu" id="fab-menu">
+    <div class="fab-item fab-calculate" data-tooltip="Calculate" id="fab-calculate">
+      <i class="material-icons">calculate</i>
+    </div>
+    <div class="fab-item fab-save" data-tooltip="Save Trip" id="fab-save">
+      <i class="material-icons">save</i>
+    </div>
+    <div class="fab-item fab-export" data-tooltip="Export" id="fab-export">
+      <i class="material-icons">share</i>
+    </div>
+    <div class="fab-item fab-reset" data-tooltip="Reset" id="fab-reset">
+      <i class="material-icons">restart_alt</i>
+    </div>
+  </div>
+
+  <!-- Trip Details Modal -->
+  <div class="modal" id="trip-details-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-trip-name">Trip Details</h3>
+        <button class="close" id="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid grid-2">
+          <div>
+            <h4 id="modal-overview-title" class="mb-2">Trip Overview</h4>
+            <div class="text-sm">
+              <div class="flex justify-between mb-1">
+                <span class="text-gray" id="modal-dates-label">Dates:</span>
+                <span id="modal-dates"></span>
+              </div>
+              <div class="flex justify-between mb-1">
+                <span class="text-gray" id="modal-route-label">Route:</span>
+                <span id="modal-route"></span>
+              </div>
+              <div class="flex justify-between mb-1">
+                <span class="text-gray" id="modal-distance-label">Distance:</span>
+                <span id="modal-distance"></span>
+              </div>
+              <div class="flex justify-between mb-1">
+                <span class="text-gray" id="modal-duration-label">Duration:</span>
+                <span id="modal-duration"></span>
+              </div>
+            </div>
+
+            <h4 id="modal-financial-title" class="mt-4 mb-2">Financial Summary</h4>
+            <div class="text-sm">
+              <div class="flex justify-between mb-1">
+                <span class="text-gray" id="modal-income-label">Total Income:</span>
+                <span id="modal-income" class="text-green"></span>
+              </div>
+              <div class="flex justify-between mb-1">
+                <span class="text-gray" id="modal-expenses-label">Total Expenses:</span>
+                <span id="modal-expenses" class="text-red"></span>
+              </div>
+              <div class="flex justify-between font-bold">
+                <span id="modal-profit-label">Profit:</span>
+                <span id="modal-profit"></span>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <h4 id="modal-vehicle-title" class="mb-2">Vehicle Information</h4>
+              <div class="text-sm">
+                <div class="flex justify-between mb-1">
+                  <span class="text-gray" id="modal-truck-label">Truck:</span>
+                  <span id="modal-truck"></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray" id="modal-trailer-label">Trailer:</span>
+                  <span id="modal-trailer"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="p-4 bg-blue-50 rounded mb-4">
+              <h4 id="modal-breakdown-title" class="text-center mb-3">Financial Breakdown</h4>
+              <div class="chart-container" style="height: 200px;">
+                <canvas id="modal-chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="button button-outline" id="modal-print-btn">
+          <i class="material-icons">print</i>
+          <span id="modal-print-text">Print</span>
+        </button>
+        <button class="button button-primary" id="modal-share-btn">
+          <i class="material-icons">share</i>
+          <span id="modal-share-text">Share</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Modal -->
+  <div class="modal" id="export-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="export-modal-title">Export Options</h3>
+        <button class="close" id="close-export-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid grid-3">
+          <div class="p-4 border rounded text-center">
+            <i class="material-icons" style="font-size: 3rem; color: #f59e0b;">picture_as_pdf</i>
+            <h4 class="my-2" id="export-pdf-title">PDF Format</h4>
+            <p class="text-sm" id="export-pdf-desc">Export as printable PDF document</p>
+            <button class="button button-primary mt-2" id="export-modal-pdf-btn">
+              <span id="export-modal-pdf-text">Export PDF</span>
+            </button>
+          </div>
+          <div class="p-4 border rounded text-center">
+            <i class="material-icons" style="font-size: 3rem; color: #3b82f6;">table_view</i>
+            <h4 class="my-2" id="export-csv-title">CSV Format</h4>
+            <p class="text-sm" id="export-csv-desc">Export as CSV for spreadsheets</p>
+            <button class="button button-primary mt-2" id="export-modal-csv-btn">
+              <span id="export-modal-csv-text">Export CSV</span>
+            </button>
+          </div>
+          <div class="p-4 border rounded text-center">
+            <i class="material-icons" style="font-size: 3rem; color: #8b5cf6;">code</i>
+            <h4 class="my-2" id="export-json-title">JSON Format</h4>
+            <p class="text-sm" id="export-json-desc">Export as raw JSON data</p>
+            <button class="button button-primary mt-2" id="export-modal-json-btn">
+              <span id="export-modal-json-text">Export JSON</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Define translations
+    const translations = {
+      en: {
+        logoText: "Truck Driver Expense Tracker",
+        tripEntryTab: "Trip Entry",
+        truckInfoTab: "Truck Info",
+        trailerInfoTab: "Trailer Info",
+        expensesTab: "Expenses",
+        incomeTab: "Income",
+        summaryTab: "Summary",
+        historyTab: "History",
+        
+        // Trip Entry
+        tripEntryTitle: "Trip Entry",
+        tripNameLabel: "Trip Name",
+        startDateLabel: "Start Date",
+        endDateLabel: "End Date",
+        originLabel: "Origin",
+        destinationLabel: "Destination",
+        distanceLabel: "Distance (km)",
+        
+        // Truck Info
+        truckInfoTitle: "Truck Information",
+        truckMakeLabel: "Make",
+        truckModelLabel: "Model",
+        truckLicenseLabel: "License Plate",
+        
+        // Trailer Info
+        trailerInfoTitle: "Trailer Information",
+        trailerMakeLabel: "Make",
+        trailerModelLabel: "Model",
+        trailerLicenseLabel: "License Plate",
+        
+        // Expenses
+        expensesTitle: "Expenses",
+        driverExpensesLabel: "Driver Expenses",
+        ticketsExpensesLabel: "Tickets",
+        tollsExpensesLabel: "Tolls",
+        ferryExpensesLabel: "Ferry",
+        maintenanceExpensesLabel: "Maintenance",
+        fuelExpensesLabel: "Fuel",
+        otherExpensesLabel: "Other",
+        
+        // Income
+        incomeTitle: "Income",
+        addIncomeText: "Add Income Item",
+        totalIncomeLabel: "Total Income",
+        descriptionLabel: "Description",
+        amountLabel: "Amount",
+        paymentLabel: "Payment",
+        
+        // Summary
+        summaryTitle: "Trip Summary",
+        tripOverviewTitle: "Trip Overview",
+        tripDurationLabel: "Trip Duration",
+        totalDistanceLabel: "Total Distance",
+        summaryIncomeLabel: "Total Income",
+        summaryExpensesLabel: "Total Expenses",
+        profitResultLabel: "Profit",
+        calculateBtnText: "Calculate",
+        saveBtnText: "Save Trip",
+        resetBtnText: "Reset",
+        exportPdfText: "Export PDF",
+        exportCsvText: "Export CSV",
+        exportJsonText: "Export JSON",
+        noIncomeText: "No income entries",
+        noExpensesText: "No expense entries",
+        
+        // History
+        historyTitle: "Trip History",
+        noTripsText: "No saved trips found. Complete and save a trip to see it here.",
+        clearHistoryText: "Clear All History",
+        
+        // Modal
+        modalOverviewTitle: "Trip Overview",
+        modalFinancialTitle: "Financial Summary",
+        modalVehicleTitle: "Vehicle Information",
+        modalBreakdownTitle: "Financial Breakdown",
+        modalDatesLabel: "Dates",
+        modalRouteLabel: "Route",
+        modalDistanceLabel: "Distance",
+        modalDurationLabel: "Duration",
+        modalIncomeLabel: "Total Income",
+        modalExpensesLabel: "Total Expenses",
+        modalProfitLabel: "Profit",
+        modalTruckLabel: "Truck",
+        modalTrailerLabel: "Trailer",
+        modalPrintText: "Print",
+        modalShareText: "Share",
+        
+        // Export Modal
+        exportModalTitle: "Export Options",
+        exportPdfTitle: "PDF Format",
+        exportPdfDesc: "Export as printable PDF document",
+        exportCsvTitle: "CSV Format",
+        exportCsvDesc: "Export as CSV for spreadsheets",
+        exportJsonTitle: "JSON Format",
+        exportJsonDesc: "Export as raw JSON data",
+        
+        // Misc
+        days: "days",
+        confirmReset: "Are you sure you want to reset all data? This cannot be undone.",
+        confirmClearHistory: "Are you sure you want to clear all trip history? This cannot be undone.",
+        tripSaved: "Trip saved successfully!",
+        tripSaveError: "Error saving trip. Please check all fields.",
+        exportComplete: "Export complete!",
+        deleteTrip: "Delete Trip",
+        viewDetails: "View Details"
+      },
+      ro: {
+        logoText: "Tracker Cheltuieli Șoferi de Camion",
+        tripEntryTab: "Introducere Călătorie",
+        truckInfoTab: "Info Camion",
+        trailerInfoTab: "Info Remorcă",
+        expensesTab: "Cheltuieli",
+        incomeTab: "Venituri",
+        summaryTab: "Sumar",
+        historyTab: "Istoric",
+        
+        // Trip Entry
+        tripEntryTitle: "Introducere Călătorie",
+        tripNameLabel: "Nume Călătorie",
+        startDateLabel: "Data de Început",
+        endDateLabel: "Data de Sfârșit",
+        originLabel: "Origine",
+        destinationLabel: "Destinație",
+        distanceLabel: "Distanță (km)",
+        
+        // Truck Info
+        truckInfoTitle: "Informații Camion",
+        truckMakeLabel: "Marcă",
+        truckModelLabel: "Model",
+        truckLicenseLabel: "Număr Înmatriculare",
+        
+        // Trailer Info
+        trailerInfoTitle: "Informații Remorcă",
+        trailerMakeLabel: "Marcă",
+        trailerModelLabel: "Model",
+        trailerLicenseLabel: "Număr Înmatriculare",
+        
+        // Expenses
+        expensesTitle: "Cheltuieli",
+        driverExpensesLabel: "Cheltuieli Șofer",
+        ticketsExpensesLabel: "Bilete",
+        tollsExpensesLabel: "Taxe Drum",
+        ferryExpensesLabel: "Ferry",
+        maintenanceExpensesLabel: "Întreținere",
+        fuelExpensesLabel: "Combustibil",
+        otherExpensesLabel: "Altele",
+        
+        // Income
+        incomeTitle: "Venituri",
+        addIncomeText: "Adaugă Element Venit",
+        totalIncomeLabel: "Total Venituri",
+        descriptionLabel: "Descriere",
+        amountLabel: "Sumă",
+        paymentLabel: "Plată",
+        
+        // Summary
+        summaryTitle: "Sumar Călătorie",
+        tripOverviewTitle: "Privire de Ansamblu",
+        tripDurationLabel: "Durata Călătoriei",
+        totalDistanceLabel: "Distanța Totală",
+        summaryIncomeLabel: "Total Venituri",
+        summaryExpensesLabel: "Total Cheltuieli",
+        profitResultLabel: "Profit",
+        calculateBtnText: "Calculează",
+        saveBtnText: "Salvează Călătoria",
+        resetBtnText: "Resetează",
+        exportPdfText: "Export PDF",
+        exportCsvText: "Export CSV",
+        exportJsonText: "Export JSON",
+        noIncomeText: "Fără înregistrări de venituri",
+        noExpensesText: "Fără înregistrări de cheltuieli",
+        
+        // History
+        historyTitle: "Istoric Călătorii",
+        noTripsText: "Nu s-au găsit călătorii salvate. Completați și salvați o călătorie pentru a o vedea aici.",
+        clearHistoryText: "Șterge Tot Istoricul",
+        
+        // Modal
+        modalOverviewTitle: "Privire de Ansamblu",
+        modalFinancialTitle: "Sumar Financiar",
+        modalVehicleTitle: "Informații Vehicul",
+        modalBreakdownTitle: "Defalcare Financiară",
+        modalDatesLabel: "Date",
+        modalRouteLabel: "Rută",
+        modalDistanceLabel: "Distanță",
+        modalDurationLabel: "Durată",
+        modalIncomeLabel: "Total Venituri",
+        modalExpensesLabel: "Total Cheltuieli",
+        modalProfitLabel: "Profit",
+        modalTruckLabel: "Camion",
+        modalTrailerLabel: "Remorcă",
+        modalPrintText: "Printează",
+        modalShareText: "Distribuie",
+        
+        // Export Modal
+        exportModalTitle: "Opțiuni Export",
+        exportPdfTitle: "Format PDF",
+        exportPdfDesc: "Exportă ca document PDF imprimabil",
+        exportCsvTitle: "Format CSV",
+        exportCsvDesc: "Exportă ca CSV pentru foi de calcul",
+        exportJsonTitle: "Format JSON",
+        exportJsonDesc: "Exportă ca date brute JSON",
+        
+        // Misc
+        days: "zile",
+        confirmReset: "Sigur doriți să resetați toate datele? Acțiunea nu poate fi anulată.",
+        confirmClearHistory: "Sigur doriți să ștergeți tot istoricul călătoriilor? Acțiunea nu poate fi anulată.",
+        tripSaved: "Călătorie salvată cu succes!",
+        tripSaveError: "Eroare la salvarea călătoriei. Verificați toate câmpurile.",
+        exportComplete: "Export finalizat!",
+        deleteTrip: "Șterge Călătoria",
+        viewDetails: "Vezi Detalii"
+      }
+    };
+
+    // TripData model
+    const getEmptyTrip = () => {
+      return {
+        id: "",
+        tripName: "",
+        startDate: "",
+        endDate: "",
+        origin: "",
+        destination: "",
+        distance: 0,
+        truckInfo: {
+          id: "",
+          make: "",
+          model: "",
+          licensePlate: ""
+        },
+        trailerInfo: {
+          id: "",
+          make: "",
+          model: "",
+          licensePlate: ""
+        },
+        expenses: {
+          driver: 0,
+          tickets: 0,
+          tolls: 0,
+          ferry: 0,
+          maintenance: 0,
+          fuel: 0,
+          other: 0,
+          total: 0
+        },
+        income: {
+          items: [],
+          total: 0
+        },
+        profit: 0,
+        created: ""
+      };
+    };
+
+    // Global state
+    let currentTrip = getEmptyTrip();
+    let savedTrips = [];
+    let currentLanguage = "en";
+    let expensesChart = null;
+    let modalChart = null;
+    let currentTripViewingInModal = null;
+
+    // Helper functions
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-EU', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2
+      }).format(amount);
+    };
+
+    const formatDate = (dateString) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat('en-GB').format(date);
+    };
+
+    const getDaysBetweenDates = (startDate, endDate) => {
+      if (!startDate || !endDate) return 0;
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    };
+
+    const getText = (key) => {
+      return translations[currentLanguage][key] || key;
+    };
+
+    const generateId = () => {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    };
+
+    // Load saved trips from localStorage
+    const loadSavedTrips = () => {
+      try {
+        const tripsJson = localStorage.getItem('savedTrips');
+        savedTrips = tripsJson ? JSON.parse(tripsJson) : [];
+      } catch (e) {
+        console.error('Error loading saved trips:', e);
+        savedTrips = [];
+      }
+    };
+
+    // Save trips to localStorage
+    const saveTripsToStorage = () => {
+      try {
+        localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
+      } catch (e) {
+        console.error('Error saving trips:', e);
+        alert('Error saving trips to storage.');
+      }
+    };
+
+    // Load language preference from localStorage
+    const loadLanguagePreference = () => {
+      try {
+        const savedLanguage = localStorage.getItem('language');
+        if (savedLanguage) {
+          currentLanguage = savedLanguage;
+          document.querySelectorAll('.language-option').forEach(option => {
+            option.classList.toggle('active', option.dataset.lang === currentLanguage);
+          });
+        }
+      } catch (e) {
+        console.error('Error loading language preference:', e);
+      }
+    };
+
+    // Save language preference to localStorage
+    const saveLanguagePreference = () => {
+      try {
+        localStorage.setItem('language', currentLanguage);
+      } catch (e) {
+        console.error('Error saving language preference:', e);
+      }
+    };
+
+    // Load theme preference from localStorage
+    const loadThemePreference = () => {
+      try {
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        document.body.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+        document.getElementById('theme-toggle').checked = darkMode;
+      } catch (e) {
+        console.error('Error loading theme preference:', e);
+      }
+    };
+
+    // Save theme preference to localStorage
+    const saveThemePreference = (isDarkMode) => {
+      try {
+        localStorage.setItem('darkMode', isDarkMode.toString());
+      } catch (e) {
+        console.error('Error saving theme preference:', e);
+      }
+    };
+
+    // Update expense chart
+    const updateExpensesChart = () => {
+      const ctx = document.getElementById('expenses-chart').getContext('2d');
+      
+      if (expensesChart) {
+        expensesChart.destroy();
+      }
+      
+      const expenses = currentTrip.expenses;
+      const totalIncome = currentTrip.income.total;
+      
+      const labels = [];
+      const data = [];
+      const colors = [];
+      
+      // Add expense categories with values > 0
+      if (expenses.driver > 0) {
+        labels.push(getText('driverExpensesLabel'));
+        data.push(expenses.driver);
+        colors.push('#3f51b5');
+      }
+      
+      if (expenses.tickets > 0) {
+        labels.push(getText('ticketsExpensesLabel'));
+        data.push(expenses.tickets);
+        colors.push('#ff9800');
+      }
+      
+      if (expenses.tolls > 0) {
+        labels.push(getText('tollsExpensesLabel'));
+        data.push(expenses.tolls);
+        colors.push('#ff5722');
+      }
+      
+      if (expenses.ferry > 0) {
+        labels.push(getText('ferryExpensesLabel'));
+        data.push(expenses.ferry);
+        colors.push('#607d8b');
+      }
+      
+      if (expenses.maintenance > 0) {
+        labels.push(getText('maintenanceExpensesLabel'));
+        data.push(expenses.maintenance);
+        colors.push('#4caf50');
+      }
+      
+      if (expenses.fuel > 0) {
+        labels.push(getText('fuelExpensesLabel'));
+        data.push(expenses.fuel);
+        colors.push('#2196f3');
+      }
+      
+      if (expenses.other > 0) {
+        labels.push(getText('otherExpensesLabel'));
+        data.push(expenses.other);
+        colors.push('#9c27b0');
+      }
+      
+      // Add income if there is any
+      if (totalIncome > 0) {
+        labels.push(getText('totalIncomeLabel'));
+        data.push(totalIncome);
+        colors.push('#4caf50');
+      }
+      
+      // If no data, show empty state
+      if (labels.length === 0) {
+        labels.push('No Data');
+        data.push(1);
+        colors.push('#e0e0e0');
+      }
+      
+      expensesChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: {
+                  size: 11
+                }
+              }
+            }
+          },
+          animation: {
+            duration: 1000,
+            easing: 'easeOutBounce'
+          }
+        }
+      });
+    };
+
+    // Update modal chart
+    const updateModalChart = (trip) => {
+      const ctx = document.getElementById('modal-chart').getContext('2d');
+      
+      if (modalChart) {
+        modalChart.destroy();
+      }
+      
+      const expenses = trip.expenses;
+      const totalIncome = trip.income.total;
+      
+      const labels = [];
+      const data = [];
+      const colors = [];
+      
+      // Add expense categories with values > 0
+      if (expenses.driver > 0) {
+        labels.push(getText('driverExpensesLabel'));
+        data.push(expenses.driver);
+        colors.push('#3f51b5');
+      }
+      
+      if (expenses.tickets > 0) {
+        labels.push(getText('ticketsExpensesLabel'));
+        data.push(expenses.tickets);
+        colors.push('#ff9800');
+      }
+      
+      if (expenses.tolls > 0) {
+        labels.push(getText('tollsExpensesLabel'));
+        data.push(expenses.tolls);
+        colors.push('#ff5722');
+      }
+      
+      if (expenses.ferry > 0) {
+        labels.push(getText('ferryExpensesLabel'));
+        data.push(expenses.ferry);
+        colors.push('#607d8b');
+      }
+      
+      if (expenses.maintenance > 0) {
+        labels.push(getText('maintenanceExpensesLabel'));
+        data.push(expenses.maintenance);
+        colors.push('#4caf50');
+      }
+      
+      if (expenses.fuel > 0) {
+        labels.push(getText('fuelExpensesLabel'));
+        data.push(expenses.fuel);
+        colors.push('#2196f3');
+      }
+      
+      if (expenses.other > 0) {
+        labels.push(getText('otherExpensesLabel'));
+        data.push(expenses.other);
+        colors.push('#9c27b0');
+      }
+      
+      // Add income if there is any
+      if (totalIncome > 0) {
+        labels.push(getText('totalIncomeLabel'));
+        data.push(totalIncome);
+        colors.push('#4caf50');
+      }
+      
+      // If no data, show empty state
+      if (labels.length === 0) {
+        labels.push('No Data');
+        data.push(1);
+        colors.push('#e0e0e0');
+      }
+      
+      modalChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: colors,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: {
+                  size: 10
+                },
+                boxWidth: 10
+              }
+            }
+          },
+          animation: {
+            duration: 800,
+            easing: 'easeOutBounce'
+          }
+        }
+      });
+    };
+
+    // Save current trip
+    const saveTrip = () => {
+      if (!currentTrip.tripName || !currentTrip.startDate || !currentTrip.endDate) {
+        alert(getText('tripSaveError'));
+        return false;
+      }
+      
+      // Create a new trip object
+      const tripToSave = {
+        ...currentTrip,
+        id: currentTrip.id || generateId(),
+        created: currentTrip.created || new Date().toISOString()
+      };
+      
+      // Find and remove the old version if it exists
+      const index = savedTrips.findIndex(trip => trip.id === tripToSave.id);
+      if (index !== -1) {
+        savedTrips.splice(index, 1);
+      }
+      
+      // Add the new trip
+      savedTrips.unshift(tripToSave);
+      
+      // Save to localStorage
+      saveTripsToStorage();
+      
+      // Update the history list
+      renderTripHistory();
+      
+      alert(getText('tripSaved'));
+      return true;
+    };
+
+    // Calculate trip totals
+    const calculateTotals = () => {
+      // Calculate total expenses
+      const expenses = currentTrip.expenses;
+      expenses.total = 
+        parseFloat(expenses.driver || 0) +
+        parseFloat(expenses.tickets || 0) +
+        parseFloat(expenses.tolls || 0) +
+        parseFloat(expenses.ferry || 0) +
+        parseFloat(expenses.maintenance || 0) +
+        parseFloat(expenses.fuel || 0) +
+        parseFloat(expenses.other || 0);
+      
+      // Calculate total income
+      let incomeTotal = 0;
+      currentTrip.income.items.forEach(item => {
+        incomeTotal += parseFloat(item.amount || 0);
+      });
+      currentTrip.income.total = incomeTotal;
+      
+      // Calculate profit
+      currentTrip.profit = currentTrip.income.total - expenses.total;
+      
+      // Update UI
+      updateSummaryUI();
+      updateExpensesChart();
+    };
+
+    // Reset trip data
+    const resetTrip = () => {
+      if (confirm(getText('confirmReset'))) {
+        currentTrip = getEmptyTrip();
+        updateAllInputs();
+        updateSummaryUI();
+        updateExpensesChart();
+        renderIncomeItems();
+      }
+    };
+
+    // Load trip for editing
+    const loadTrip = (tripId) => {
+      const trip = savedTrips.find(trip => trip.id === tripId);
+      if (trip) {
+        currentTrip = JSON.parse(JSON.stringify(trip)); // Deep clone
+        updateAllInputs();
+        updateSummaryUI();
+        updateExpensesChart();
+        renderIncomeItems();
+        
+        // Switch to trip entry tab
+        document.querySelector('.tab-button[data-tab="trip-entry"]').click();
+      }
+    };
+
+    // Delete a trip
+    const deleteTrip = (tripId) => {
+      const index = savedTrips.findIndex(trip => trip.id === tripId);
+      if (index !== -1) {
+        savedTrips.splice(index, 1);
+        saveTripsToStorage();
+        renderTripHistory();
+      }
+    };
+
+    // Clear all trip history
+    const clearAllTrips = () => {
+      if (confirm(getText('confirmClearHistory'))) {
+        savedTrips = [];
+        saveTripsToStorage();
+        renderTripHistory();
+      }
+    };
+
+    // Add income item
+    const addIncomeItem = () => {
+      currentTrip.income.items.push({
+        description: "",
+        amount: 0
+      });
+      renderIncomeItems();
+    };
+
+    // Remove income item
+    const removeIncomeItem = (index) => {
+      currentTrip.income.items.splice(index, 1);
+      renderIncomeItems();
+      calculateTotals();
+    };
+
+    // Export functions
+    const exportToJson = () => {
+      const dataStr = JSON.stringify(currentTrip, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      
+      const exportFileDefaultName = `trip-${currentTrip.tripName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      
+      alert(getText('exportComplete'));
+    };
+
+    const exportToCsv = () => {
+      // Prepare CSV content
+      let csvContent = "data:text/csv;charset=utf-8,";
+      
+      // Trip information
+      csvContent += "Trip Name,Start Date,End Date,Origin,Destination,Distance (km),Duration (days)\n";
+      csvContent += `"${currentTrip.tripName}","${formatDate(currentTrip.startDate)}","${formatDate(currentTrip.endDate)}","${currentTrip.origin}","${currentTrip.destination}",${currentTrip.distance},${getDaysBetweenDates(currentTrip.startDate, currentTrip.endDate)}\n\n`;
+      
+      // Vehicle information
+      csvContent += "Truck Make,Truck Model,Truck License,Trailer Make,Trailer Model,Trailer License\n";
+      csvContent += `"${currentTrip.truckInfo.make}","${currentTrip.truckInfo.model}","${currentTrip.truckInfo.licensePlate}","${currentTrip.trailerInfo.make}","${currentTrip.trailerInfo.model}","${currentTrip.trailerInfo.licensePlate}"\n\n`;
+      
+      // Expenses
+      csvContent += "Expense Category,Amount\n";
+      if (currentTrip.expenses.driver > 0) csvContent += `"Driver",${currentTrip.expenses.driver}\n`;
+      if (currentTrip.expenses.tickets > 0) csvContent += `"Tickets",${currentTrip.expenses.tickets}\n`;
+      if (currentTrip.expenses.tolls > 0) csvContent += `"Tolls",${currentTrip.expenses.tolls}\n`;
+      if (currentTrip.expenses.ferry > 0) csvContent += `"Ferry",${currentTrip.expenses.ferry}\n`;
+      if (currentTrip.expenses.maintenance > 0) csvContent += `"Maintenance",${currentTrip.expenses.maintenance}\n`;
+      if (currentTrip.expenses.fuel > 0) csvContent += `"Fuel",${currentTrip.expenses.fuel}\n`;
+      if (currentTrip.expenses.other > 0) csvContent += `"Other",${currentTrip.expenses.other}\n`;
+      csvContent += `"Total Expenses",${currentTrip.expenses.total}\n\n`;
+      
+      // Income
+      csvContent += "Income Description,Amount\n";
+      currentTrip.income.items.forEach(item => {
+        if (item.amount > 0) {
+          csvContent += `"${item.description}",${item.amount}\n`;
+        }
+      });
+      csvContent += `"Total Income",${currentTrip.income.total}\n\n`;
+      
+      // Profit
+      csvContent += "Profit,${currentTrip.profit}\n";
+      
+      const encodedUri = encodeURI(csvContent);
+      const exportFileDefaultName = `trip-${currentTrip.tripName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', encodedUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      
+      alert(getText('exportComplete'));
+    };
+
+    // Mock PDF export (in a real app, use a proper PDF generation library)
+    const exportToPdf = () => {
+      alert("PDF export simulation - In a real app, this would generate a PDF file");
+      const exportFileDefaultName = `trip-${currentTrip.tripName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      console.log(`Exporting PDF: ${exportFileDefaultName}`);
+      alert(getText('exportComplete'));
+    };
+
+    // UI update functions
+    const updateAllInputs = () => {
+      // Trip Entry
+      document.getElementById('trip-name').value = currentTrip.tripName || '';
+      document.getElementById('start-date').value = currentTrip.startDate || '';
+      document.getElementById('end-date').value = currentTrip.endDate || '';
+      document.getElementById('origin').value = currentTrip.origin || '';
+      document.getElementById('destination').value = currentTrip.destination || '';
+      document.getElementById('distance').value = currentTrip.distance || '';
+      
+      // Truck Info
+      document.getElementById('truck-make').value = currentTrip.truckInfo.make || '';
+      document.getElementById('truck-model').value = currentTrip.truckInfo.model || '';
+      document.getElementById('truck-license').value = currentTrip.truckInfo.licensePlate || '';
+      
+      // Trailer Info
+      document.getElementById('trailer-make').value = currentTrip.trailerInfo.make || '';
+      document.getElementById('trailer-model').value = currentTrip.trailerInfo.model || '';
+      document.getElementById('trailer-license').value = currentTrip.trailerInfo.licensePlate || '';
+      
+      // Expenses
+      document.getElementById('driver-expenses').value = currentTrip.expenses.driver || '';
+      document.getElementById('tickets-expenses').value = currentTrip.expenses.tickets || '';
+      document.getElementById('tolls-expenses').value = currentTrip.expenses.tolls || '';
+      document.getElementById('ferry-expenses').value = currentTrip.expenses.ferry || '';
+      document.getElementById('maintenance-expenses').value = currentTrip.expenses.maintenance || '';
+      document.getElementById('fuel-expenses').value = currentTrip.expenses.fuel || '';
+      document.getElementById('other-expenses').value = currentTrip.expenses.other || '';
+    };
+
+    const updateSummaryUI = () => {
+      // Update trip summary section
+      const tripDuration = getDaysBetweenDates(currentTrip.startDate, currentTrip.endDate);
+      document.getElementById('trip-duration-value').textContent = `${tripDuration} ${getText('days')}`;
+      document.getElementById('total-distance-value').textContent = `${currentTrip.distance} km`;
+      
+      // Update financial summary
+      document.getElementById('summary-income-value').textContent = formatCurrency(currentTrip.income.total);
+      document.getElementById('summary-expenses-value').textContent = formatCurrency(currentTrip.expenses.total);
+      document.getElementById('profit-value').textContent = formatCurrency(currentTrip.profit);
+      
+      // Style profit based on value
+      const profitElement = document.getElementById('profit-value');
+      if (currentTrip.profit > 0) {
+        profitElement.className = 'font-bold text-lg text-green';
+      } else if (currentTrip.profit < 0) {
+        profitElement.className = 'font-bold text-lg text-red';
+      } else {
+        profitElement.className = 'font-bold text-lg';
+      }
+      
+      // Show income breakdown
+      const incomeBreakdownEl = document.getElementById('income-breakdown');
+      if (currentTrip.income.items.length > 0 && currentTrip.income.total > 0) {
+        let incomeHtml = '';
+        currentTrip.income.items.forEach((item, index) => {
+          if (item.amount > 0) {
+            incomeHtml += `
+              <div class="flex justify-between mb-1">
+                <span>${item.description || `${getText('paymentLabel')} ${index + 1}`}</span>
+                <span>${formatCurrency(item.amount)}</span>
+              </div>
+            `;
+          }
+        });
+        incomeBreakdownEl.innerHTML = incomeHtml || `<div class="text-center">${getText('noIncomeText')}</div>`;
+      } else {
+        incomeBreakdownEl.innerHTML = `<div class="text-center">${getText('noIncomeText')}</div>`;
+      }
+      
+      // Show expenses breakdown
+      const expensesBreakdownEl = document.getElementById('expenses-breakdown');
+      const expenseItems = [
+        { key: 'driver', label: getText('driverExpensesLabel') },
+        { key: 'tickets', label: getText('ticketsExpensesLabel') },
+        { key: 'tolls', label: getText('tollsExpensesLabel') },
+        { key: 'ferry', label: getText('ferryExpensesLabel') },
+        { key: 'maintenance', label: getText('maintenanceExpensesLabel') },
+        { key: 'fuel', label: getText('fuelExpensesLabel') },
+        { key: 'other', label: getText('otherExpensesLabel') }
+      ];
+      
+      let expensesHtml = '';
+      let hasExpenses = false;
+      
+      expenseItems.forEach(item => {
+        const value = currentTrip.expenses[item.key];
+        if (value > 0) {
+          hasExpenses = true;
+          expensesHtml += `
+            <div class="flex justify-between mb-1">
+              <span>${item.label}</span>
+              <span>${formatCurrency(value)}</span>
+            </div>
+          `;
+        }
+      });
+      
+      expensesBreakdownEl.innerHTML = hasExpenses ? expensesHtml : `<div class="text-center">${getText('noExpensesText')}</div>`;
+      
+      // Update total income display
+      document.getElementById('total-income').textContent = formatCurrency(currentTrip.income.total);
+    };
+
+    const renderIncomeItems = () => {
+      const container = document.getElementById('income-items-container');
+      container.innerHTML = '';
+      
+      // Ensure we have at least one income item
+      if (currentTrip.income.items.length === 0) {
+        addIncomeItem();
+        return;
+      }
+      
+      currentTrip.income.items.forEach((item, index) => {
+        const incomeItemHtml = `
+          <div class="income-entry">
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="text-green flex items-center">
+                <i class="material-icons text-sm mr-1">attach_money</i>
+                <span>${getText('paymentLabel')} ${index + 1}</span>
+              </h3>
+              ${index > 0 ? `
+                <button class="btn-icon text-red remove-income-btn" data-index="${index}">
+                  <i class="material-icons">delete</i>
+                </button>
+              ` : ''}
+            </div>
+            
+            <div class="grid grid-2">
+              <div class="form-group">
+                <label for="income-desc-${index}">${getText('descriptionLabel')}</label>
+                <input 
+                  type="text" 
+                  id="income-desc-${index}" 
+                  value="${item.description || ''}" 
+                  class="income-description" 
+                  data-index="${index}"
+                >
+              </div>
+              <div class="form-group">
+                <label for="income-amount-${index}">${getText('amountLabel')}</label>
+                <div class="expense-input">
+                  <input 
+                    type="number" 
+                    id="income-amount-${index}" 
+                    value="${item.amount || ''}" 
+                    class="income-amount" 
+                    data-index="${index}"
+                  >
+                  <div class="expense-input-symbol">€</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        container.innerHTML += incomeItemHtml;
+      });
+      
+      // Add event listeners
+      document.querySelectorAll('.income-description').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const index = parseInt(e.target.dataset.index);
+          currentTrip.income.items[index].description = e.target.value;
+        });
+      });
+      
+      document.querySelectorAll('.income-amount').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const index = parseInt(e.target.dataset.index);
+          currentTrip.income.items[index].amount = parseFloat(e.target.value) || 0;
+          calculateTotals();
+        });
+      });
+      
+      document.querySelectorAll('.remove-income-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const index = parseInt(e.currentTarget.dataset.index);
+          removeIncomeItem(index);
+        });
+      });
+    };
+
+    const renderTripHistory = () => {
+      const historyList = document.getElementById('history-list');
+      const emptyState = document.getElementById('history-empty');
+      
+      if (savedTrips.length === 0) {
+        historyList.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      historyList.innerHTML = '';
+      
+      savedTrips.forEach(trip => {
+        const profitClass = trip.profit >= 0 ? 'text-green' : 'text-red';
+        
+        const historyItemHtml = `
+          <div class="history-item">
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="font-bold">${trip.tripName}</h3>
+              <span class="text-sm">${formatDate(trip.created)}</span>
+            </div>
+            <div class="grid grid-2 mb-2">
+              <div>
+                <div class="text-sm mb-1">
+                  <span class="text-xs text-blue">${getText('modalRouteLabel')}:</span>
+                  ${trip.origin} → ${trip.destination}
+                </div>
+                <div class="text-sm mb-1">
+                  <span class="text-xs text-blue">${getText('modalDatesLabel')}:</span>
+                  ${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}
+                </div>
+              </div>
+              <div>
+                <div class="text-sm mb-1">
+                  <span class="text-xs text-green">${getText('totalIncomeLabel')}:</span>
+                  ${formatCurrency(trip.income.total)}
+                </div>
+                <div class="text-sm mb-1">
+                  <span class="text-xs text-red">${getText('totalExpensesLabel')}:</span>
+                  ${formatCurrency(trip.expenses.total)}
+                </div>
+                <div class="text-sm font-bold">
+                  <span>${getText('profitResultLabel')}:</span>
+                  <span class="${profitClass}">${formatCurrency(trip.profit)}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="button button-outline view-trip-btn" data-trip-id="${trip.id}">
+                <i class="material-icons">visibility</i>
+                <span>${getText('viewDetails')}</span>
+              </button>
+              <button class="button button-primary load-trip-btn" data-trip-id="${trip.id}">
+                <i class="material-icons">edit</i>
+                <span>Edit</span>
+              </button>
+              <button class="button button-red delete-trip-btn" data-trip-id="${trip.id}">
+                <i class="material-icons">delete</i>
+                <span>${getText('deleteTrip')}</span>
+              </button>
+            </div>
+          </div>
+        `;
+        
+        historyList.innerHTML += historyItemHtml;
+      });
+      
+      // Add event listeners
+      document.querySelectorAll('.view-trip-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const tripId = e.currentTarget.dataset.tripId;
+          const trip = savedTrips.find(t => t.id === tripId);
+          if (trip) {
+            openTripDetailsModal(trip);
+          }
+        });
+      });
+      
+      document.querySelectorAll('.load-trip-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const tripId = e.currentTarget.dataset.tripId;
+          loadTrip(tripId);
+        });
+      });
+      
+      document.querySelectorAll('.delete-trip-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const tripId = e.currentTarget.dataset.tripId;
+          if (confirm(`${getText('deleteTrip')}?`)) {
+            deleteTrip(tripId);
+          }
+        });
+      });
+    };
+
+    const openTripDetailsModal = (trip) => {
+      currentTripViewingInModal = trip;
+      const modal = document.getElementById('trip-details-modal');
+      
+      // Set modal content
+      document.getElementById('modal-trip-name').textContent = trip.tripName;
+      document.getElementById('modal-dates').textContent = `${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}`;
+      document.getElementById('modal-route').textContent = `${trip.origin} → ${trip.destination}`;
+      document.getElementById('modal-distance').textContent = `${trip.distance} km`;
+      document.getElementById('modal-duration').textContent = `${getDaysBetweenDates(trip.startDate, trip.endDate)} ${getText('days')}`;
+      
+      document.getElementById('modal-income').textContent = formatCurrency(trip.income.total);
+      document.getElementById('modal-expenses').textContent = formatCurrency(trip.expenses.total);
+      
+      const profitEl = document.getElementById('modal-profit');
+      profitEl.textContent = formatCurrency(trip.profit);
+      profitEl.className = trip.profit >= 0 ? 'text-green' : 'text-red';
+      
+      document.getElementById('modal-truck').textContent = 
+        `${trip.truckInfo.make} ${trip.truckInfo.model} (${trip.truckInfo.licensePlate})`;
+      document.getElementById('modal-trailer').textContent = 
+        `${trip.trailerInfo.make} ${trip.trailerInfo.model} (${trip.trailerInfo.licensePlate})`;
+      
+      // Show modal
+      modal.style.display = 'flex';
+      
+      // Update chart
+      setTimeout(() => {
+        updateModalChart(trip);
+      }, 100);
+    };
+
+    // Tab switching
+    const setupTabs = () => {
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+          // Remove active class from all tabs
+          document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+          });
+          
+          // Add active class to current tab
+          button.classList.add('active');
+          
+          // Hide all tab content
+          document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+            content.style.display = 'none';
+          });
+          
+          // Show selected tab content
+          const tabId = button.getAttribute('data-tab');
+          const tabContent = document.getElementById(tabId);
+          if (tabContent) {
+            tabContent.style.display = 'block';
+            tabContent.classList.add('active');
+            
+            // Refresh chart if on summary tab
+            if (tabId === 'summary') {
+              setTimeout(() => {
+                updateExpensesChart();
+              }, 100);
+            }
+          }
+        });
+      });
+    };
+
+    // Setup language switching
+    const setupLanguageSwitching = () => {
+      document.querySelectorAll('.language-option').forEach(option => {
+        option.addEventListener('click', () => {
+          currentLanguage = option.dataset.lang;
+          
+          // Update active class
+          document.querySelectorAll('.language-option').forEach(opt => {
+            opt.classList.toggle('active', opt.dataset.lang === currentLanguage);
+          });
+          
+          saveLanguagePreference();
+          updateUILanguage();
+        });
+      });
+    };
+
+    // Setup theme switching
+    const setupThemeSwitching = () => {
+      const themeToggle = document.getElementById('theme-toggle');
+      themeToggle.addEventListener('change', () => {
+        const isDarkMode = themeToggle.checked;
+        document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+        saveThemePreference(isDarkMode);
+      });
+    };
+
+    // Setup floating action button
+    const setupFloatingActionButton = () => {
+      const fabMain = document.getElementById('fab-main');
+      const fabMenu = document.getElementById('fab-menu');
+      
+      fabMain.addEventListener('click', () => {
+        const isVisible = fabMenu.style.display === 'flex';
+        fabMenu.style.display = isVisible ? 'none' : 'flex';
+      });
+      
+      document.getElementById('fab-calculate').addEventListener('click', () => {
+        calculateTotals();
+        fabMenu.style.display = 'none';
+      });
+      
+      document.getElementById('fab-save').addEventListener('click', () => {
+        saveTrip();
+        fabMenu.style.display = 'none';
+      });
+      
+      document.getElementById('fab-export').addEventListener('click', () => {
+        document.getElementById('export-modal').style.display = 'flex';
+        fabMenu.style.display = 'none';
+      });
+      
+      document.getElementById('fab-reset').addEventListener('click', () => {
+        resetTrip();
+        fabMenu.style.display = 'none';
+      });
+      
+      // Close FAB menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#fab-main') && !e.target.closest('#fab-menu')) {
+          fabMenu.style.display = 'none';
+        }
+      });
+    };
+
+    // Update UI with correct language
+    const updateUILanguage = () => {
+      // Logo and header
+      document.getElementById('logo-text').textContent = getText('logoText');
+      
+      // Tabs
+      document.getElementById('trip-entry-tab').textContent = getText('tripEntryTab');
+      document.getElementById('truck-info-tab').textContent = getText('truckInfoTab');
+      document.getElementById('trailer-info-tab').textContent = getText('trailerInfoTab');
+      document.getElementById('expenses-tab').textContent = getText('expensesTab');
+      document.getElementById('income-tab').textContent = getText('incomeTab');
+      document.getElementById('summary-tab').textContent = getText('summaryTab');
+      document.getElementById('history-tab').textContent = getText('historyTab');
+      
+      // Trip Entry
+      document.getElementById('trip-entry-title').textContent = getText('tripEntryTitle');
+      document.getElementById('trip-name-label').textContent = getText('tripNameLabel');
+      document.getElementById('start-date-label').textContent = getText('startDateLabel');
+      document.getElementById('end-date-label').textContent = getText('endDateLabel');
+      document.getElementById('origin-label').textContent = getText('originLabel');
+      document.getElementById('destination-label').textContent = getText('destinationLabel');
+      document.getElementById('distance-label').textContent = getText('distanceLabel');
+      
+      // Truck Info
+      document.getElementById('truck-info-title').textContent = getText('truckInfoTitle');
+      document.getElementById('truck-make-label').textContent = getText('truckMakeLabel');
+      document.getElementById('truck-model-label').textContent = getText('truckModelLabel');
+      document.getElementById('truck-license-label').textContent = getText('truckLicenseLabel');
+      
+      // Trailer Info
+      document.getElementById('trailer-info-title').textContent = getText('trailerInfoTitle');
+      document.getElementById('trailer-make-label').textContent = getText('trailerMakeLabel');
+      document.getElementById('trailer-model-label').textContent = getText('trailerModelLabel');
+      document.getElementById('trailer-license-label').textContent = getText('trailerLicenseLabel');
+      
+      // Expenses
+      document.getElementById('expenses-title').textContent = getText('expensesTitle');
+      document.getElementById('driver-expenses-label').textContent = getText('driverExpensesLabel');
+      document.getElementById('tickets-expenses-label').textContent = getText('ticketsExpensesLabel');
+      document.getElementById('tolls-expenses-label').textContent = getText('tollsExpensesLabel');
+      document.getElementById('ferry-expenses-label').textContent = getText('ferryExpensesLabel');
+      document.getElementById('maintenance-expenses-label').textContent = getText('maintenanceExpensesLabel');
+      document.getElementById('fuel-expenses-label').textContent = getText('fuelExpensesLabel');
+      document.getElementById('other-expenses-label').textContent = getText('otherExpensesLabel');
+      
+      // Income
+      document.getElementById('income-title').textContent = getText('incomeTitle');
+      document.getElementById('add-income-text').textContent = getText('addIncomeText');
+      document.getElementById('total-income-label').textContent = getText('totalIncomeLabel');
+      
+      // Summary
+      document.getElementById('summary-title').textContent = getText('summaryTitle');
+      document.getElementById('trip-overview-title').textContent = getText('tripOverviewTitle');
+      document.getElementById('trip-duration-label').textContent = getText('tripDurationLabel');
+      document.getElementById('total-distance-label').textContent = getText('totalDistanceLabel');
+      document.getElementById('summary-income-label').textContent = getText('summaryIncomeLabel');
+      document.getElementById('summary-expenses-label').textContent = getText('summaryExpensesLabel');
+      document.getElementById('profit-result-label').textContent = getText('profitResultLabel');
+      document.getElementById('calculate-btn-text').textContent = getText('calculateBtnText');
+      document.getElementById('save-btn-text').textContent = getText('saveBtnText');
+      document.getElementById('reset-btn-text').textContent = getText('resetBtnText');
+      document.getElementById('export-pdf-text').textContent = getText('exportPdfText');
+      document.getElementById('export-csv-text').textContent = getText('exportCsvText');
+      document.getElementById('export-json-text').textContent = getText('exportJsonText');
+      
+      // History
+      document.getElementById('history-title').textContent = getText('historyTitle');
+      document.getElementById('no-trips-text').textContent = getText('noTripsText');
+      document.getElementById('clear-history-text').textContent = getText('clearHistoryText');
+      
+      // Modal
+      document.getElementById('modal-overview-title').textContent = getText('modalOverviewTitle');
+      document.getElementById('modal-financial-title').textContent = getText('modalFinancialTitle');
+      document.getElementById('modal-vehicle-title').textContent = getText('modalVehicleTitle');
+      document.getElementById('modal-breakdown-title').textContent = getText('modalBreakdownTitle');
+      document.getElementById('modal-dates-label').textContent = getText('modalDatesLabel') + ':';
+      document.getElementById('modal-route-label').textContent = getText('modalRouteLabel') + ':';
+      document.getElementById('modal-distance-label').textContent = getText('modalDistanceLabel') + ':';
+      document.getElementById('modal-duration-label').textContent = getText('modalDurationLabel') + ':';
+      document.getElementById('modal-income-label').textContent = getText('modalIncomeLabel') + ':';
+      document.getElementById('modal-expenses-label').textContent = getText('modalExpensesLabel') + ':';
+      document.getElementById('modal-profit-label').textContent = getText('modalProfitLabel') + ':';
+      document.getElementById('modal-truck-label').textContent = getText('modalTruckLabel') + ':';
+      document.getElementById('modal-trailer-label').textContent = getText('modalTrailerLabel') + ':';
+      document.getElementById('modal-print-text').textContent = getText('modalPrintText');
+      document.getElementById('modal-share-text').textContent = getText('modalShareText');
+      
+      // Export Modal
+      document.getElementById('export-modal-title').textContent = getText('exportModalTitle');
+      document.getElementById('export-pdf-title').textContent = getText('exportPdfTitle');
+      document.getElementById('export-pdf-desc').textContent = getText('exportPdfDesc');
+      document.getElementById('export-csv-title').textContent = getText('exportCsvTitle');
+      document.getElementById('export-csv-desc').textContent = getText('exportCsvDesc');
+      document.getElementById('export-json-title').textContent = getText('exportJsonTitle');
+      document.getElementById('export-json-desc').textContent = getText('exportJsonDesc');
+      document.getElementById('export-modal-pdf-text').textContent = getText('exportPdfText');
+      document.getElementById('export-modal-csv-text').textContent = getText('exportCsvText');
+      document.getElementById('export-modal-json-text').textContent = getText('exportJsonText');
+      
+      // Update rendered income items
+      renderIncomeItems();
+      
+      // Update trip history with new language
+      renderTripHistory();
+      
+      // Update summary UI
+      updateSummaryUI();
+      
+      // Update charts
+      if (expensesChart) {
+        updateExpensesChart();
+      }
+      
+      if (modalChart && currentTripViewingInModal) {
+        updateModalChart(currentTripViewingInModal);
+      }
+    };
+
+    // Initialize the application
+    const initApp = () => {
+      // Set up initial tab content visibility
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      document.getElementById('trip-entry').style.display = 'block';
+      
+      // Load saved preferences and data
+      loadLanguagePreference();
+      loadThemePreference();
+      loadSavedTrips();
+      
+      // Setup event handlers
+      setupTabs();
+      setupLanguageSwitching();
+      setupThemeSwitching();
+      setupFloatingActionButton();
+      
+      // Setup input field change handlers
+      document.getElementById('trip-name').addEventListener('change', (e) => {
+        currentTrip.tripName = e.target.value;
+      });
+      
+      document.getElementById('start-date').addEventListener('change', (e) => {
+        currentTrip.startDate = e.target.value;
+        updateSummaryUI();
+      });
+      
+      document.getElementById('end-date').addEventListener('change', (e) => {
+        currentTrip.endDate = e.target.value;
+        updateSummaryUI();
+      });
+      
+      document.getElementById('origin').addEventListener('change', (e) => {
+        currentTrip.origin = e.target.value;
+      });
+      
+      document.getElementById('destination').addEventListener('change', (e) => {
+        currentTrip.destination = e.target.value;
+      });
+      
+      document.getElementById('distance').addEventListener('change', (e) => {
+        currentTrip.distance = parseFloat(e.target.value) || 0;
+        updateSummaryUI();
+      });
+      
+      document.getElementById('truck-make').addEventListener('change', (e) => {
+        currentTrip.truckInfo.make = e.target.value;
+      });
+      
+      document.getElementById('truck-model').addEventListener('change', (e) => {
+        currentTrip.truckInfo.model = e.target.value;
+      });
+      
+      document.getElementById('truck-license').addEventListener('change', (e) => {
+        currentTrip.truckInfo.licensePlate = e.target.value;
+      });
+      
+      document.getElementById('trailer-make').addEventListener('change', (e) => {
+        currentTrip.trailerInfo.make = e.target.value;
+      });
+      
+      document.getElementById('trailer-model').addEventListener('change', (e) => {
+        currentTrip.trailerInfo.model = e.target.value;
+      });
+      
+      document.getElementById('trailer-license').addEventListener('change', (e) => {
+        currentTrip.trailerInfo.licensePlate = e.target.value;
+      });
+      
+      // Expenses input handlers
+      const expenseInputs = [
+        { id: 'driver-expenses', field: 'driver' },
+        { id: 'tickets-expenses', field: 'tickets' },
+        { id: 'tolls-expenses', field: 'tolls' },
+        { id: 'ferry-expenses', field: 'ferry' },
+        { id: 'maintenance-expenses', field: 'maintenance' },
+        { id: 'fuel-expenses', field: 'fuel' },
+        { id: 'other-expenses', field: 'other' }
+      ];
+      
+      expenseInputs.forEach(({ id, field }) => {
+        document.getElementById(id).addEventListener('change', (e) => {
+          currentTrip.expenses[field] = parseFloat(e.target.value) || 0;
+          calculateTotals();
+        });
+      });
+      
+      // Add income item button
+      document.getElementById('add-income-btn').addEventListener('click', () => {
+        addIncomeItem();
+      });
+      
+      // Button handlers in summary tab
+      document.getElementById('calculate-btn').addEventListener('click', () => {
+        calculateTotals();
+      });
+      
+      document.getElementById('save-trip-btn').addEventListener('click', () => {
+        saveTrip();
+      });
+      
+      document.getElementById('reset-btn').addEventListener('click', () => {
+        resetTrip();
+      });
+      
+      document.getElementById('export-pdf-btn').addEventListener('click', () => {
+        exportToPdf();
+      });
+      
+      document.getElementById('export-csv-btn').addEventListener('click', () => {
+        exportToCsv();
+      });
+      
+      document.getElementById('export-json-btn').addEventListener('click', () => {
+        exportToJson();
+      });
+      
+      // History tab handlers
+      document.getElementById('clear-history-btn').addEventListener('click', () => {
+        clearAllTrips();
+      });
+      
+      // Modal close buttons
+      document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('trip-details-modal').style.display = 'none';
+      });
+      
+      document.getElementById('close-export-modal').addEventListener('click', () => {
+        document.getElementById('export-modal').style.display = 'none';
+      });
+      
+      // Modal export buttons
+      document.getElementById('export-modal-pdf-btn').addEventListener('click', () => {
+        exportToPdf();
+        document.getElementById('export-modal').style.display = 'none';
+      });
+      
+      document.getElementById('export-modal-csv-btn').addEventListener('click', () => {
+        exportToCsv();
+        document.getElementById('export-modal').style.display = 'none';
+      });
+      
+      document.getElementById('export-modal-json-btn').addEventListener('click', () => {
+        exportToJson();
+        document.getElementById('export-modal').style.display = 'none';
+      });
+      
+      // Modal print button (mock)
+      document.getElementById('modal-print-btn').addEventListener('click', () => {
+        alert("Print functionality would be implemented here");
+      });
+      
+      // Modal share button (mock)
+      document.getElementById('modal-share-btn').addEventListener('click', () => {
+        alert("Share functionality would be implemented here");
+      });
+      
+      // Close modals when clicking outside
+      window.addEventListener('click', (e) => {
+        const tripModal = document.getElementById('trip-details-modal');
+        const exportModal = document.getElementById('export-modal');
+        
+        if (e.target === tripModal) {
+          tripModal.style.display = 'none';
+        }
+        
+        if (e.target === exportModal) {
+          exportModal.style.display = 'none';
+        }
+      });
+      
+      // Initialize UI
+      updateUILanguage();
+      renderIncomeItems();
+      renderTripHistory();
+      setTimeout(() => {
+        updateExpensesChart();
+      }, 100);
+    };
+
+    // Initialize the app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
